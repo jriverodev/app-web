@@ -1,43 +1,43 @@
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, filters
 import logging
+import os
+import sys
 
 # Configura el logging para ver errores y mensajes
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-TOKEN = '7538941927:AAHQ2-oSzSTzPCOOOgt6MyiUvsEmYl5jNdg'
+# Lee el token de una variable de entorno para mayor seguridad.
+# Antes de ejecutar el bot, asegúrate de haber definido la variable de entorno TELEGRAM_TOKEN.
+# Por ejemplo, en tu terminal:
+# export TELEGRAM_TOKEN="TU_TOKEN_AQUI"
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+
+if not TOKEN:
+    logging.error("La variable de entorno TELEGRAM_TOKEN no está definida.")
+    sys.exit("Por favor, define la variable de entorno TELEGRAM_TOKEN con tu token de bot de Telegram.")
 
 def handle_document(update, context):
+    """
+    Esta función se ejecuta cada vez que se recibe un documento PDF.
+    Descarga el archivo y responde al usuario.
+    """
     document = update.message.document
-    if document.mime_type == 'application/pdf':
-        file = document.get_file()
-        file.download('input.pdf')
-        update.message.reply_text("PDF recibido y guardado como input.pdf")
-    else:
-        update.message.reply_text("Por favor, envía un archivo PDF.")
+    file = document.get_file()
+    file.download('input.pdf')
+    update.message.reply_text("PDF recibido y guardado como input.pdf")
 
 def main():
+    """Inicia el bot."""
     updater = Updater(TOKEN)
     dp = updater.dispatcher
 
-    dp.add_handler(MessageHandler(Filters.document.mime_type("application/pdf"), handle_document))
+    # Añadimos un manejador que solo responde a documentos PDF.
+    dp.add_handler(MessageHandler(filters.Document.PDF, handle_document))
 
+    # Inicia el bot
     updater.start_polling()
     print("Bot iniciado. Esperando PDFs...")
     updater.idle()
 
 if __name__ == '__main__':
     main()
-pip install --no-index --find-links=. flit_core-3.12.0.tar.gz
-pip install --no-index --find-links=. setuptools_scm-9.2.0.tar.gz
-pip install --no-index --find-links=. calver-2025.4.17.tar.gz
-pip install --no-index --find-links=. setuptools-80.9.0.tar.gz
-pip install --no-index --find-links=. wheel-0.45.1.tar.gz
-pip install --no-index --find-links=. pluggy-1.6.0.tar.gz
-pip install --no-index --find-links=. trove_classifiers-2025.9.8.13.tar.gz
-pip install --no-index --find-links=. pillow-11.3.0.tar.gz
-pip install --no-index --find-links=. packaging-25.0.tar.gz
-pip install --no-index --find-links=. pathspec-0.12.1.tar.gz
-pip install --no-index --find-links=. hatchling-1.27.0.tar.gz
-pip install --no-index --find-links=. httpx-0.28.1.tar.gz
-pip install --no-index --find-links=. python_telegram_bot-22.3.tar.gz
-
